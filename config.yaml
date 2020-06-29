@@ -1,0 +1,43 @@
+training: [{k: 6, n: 5, ans_typ: 4, nr: 2}, {k: 6, n: 6, ans_typ: 2, nr: 2}]
+experiment: [{k: 4, n: 4, ans_typ: 2, nr: 2}, {k: 6, n: 4, ans_typ: 2, nr: 2}]
+
+# Time
+trial_time: 20
+click_show_time: 0.3
+wait_time: 2 # break after trial
+
+# visual parameters
+fig_size: 40
+sign_size: 40
+pair_offset: 30
+task_offset: [0, 50]
+task_pos: [0, 200]
+answers_offset: [150, 0]
+answers_pos: [0, -100]
+
+TEXT_SIZE: 40
+
+# Frame
+frame_height: 50
+frame_width: 120
+frame_line_width: 3
+frame_answer_color: green
+frame_click_color: yellow
+
+# FEEDB
+feedback_in_training: True
+feedback_time: 1 # for -1 participant have to presses space
+pos_feedb: Poprawna odpowiedź
+neg_feedb: Niepoprawna odpowiedź
+no_feedb: Nie udzieliłeś odpowiedzi
+
+# clock
+SHOW_CLOCK: 4 # show clock n second before trial end
+CLOCK_POS: [0, 350]
+CLOCK_SIZE: 120
+
+# OTHER
+exit_key: f7
+min_training_acc: 0.5
+train_trials_randomize: False
+exp_trials_randomize: False
