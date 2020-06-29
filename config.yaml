@@ -14,6 +14,8 @@ task_offset: [0, 50]
 task_pos: [0, 200]
 answers_offset: [150, 0]
 answers_pos: [0, -100]
+n_columns: 2
+columns_offset: 150
 
 TEXT_SIZE: 40
 

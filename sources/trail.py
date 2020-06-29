@@ -89,9 +89,10 @@ class Trial:
 
     def prepare_to_draw(self, win, config):
         for i, pair in enumerate(self.pairs):
-            x = config["task_pos"][0] + (i - (self.k - 1) * 0.5) * config["task_offset"][0]
-            y = config["task_pos"][1] + (i - (self.k - 1) * 0.5) * config["task_offset"][1]
-            print(x, y)
+            x_column_offset = (-(config["n_columns"]-1) * 0.5 + (i % config["n_columns"])) * config["columns_offset"]
+
+            x = config["task_pos"][0] + (i - (self.k - 1) * 0.5) * config["task_offset"][0] + x_column_offset
+            y = config["task_pos"][1] + (int(i/config["n_columns"]) - (self.k - 1) * 0.5) * config["task_offset"][1]
             left = visual.ImageStim(win=win, image=join('images', self.figures[pair["left"]]),
                                     interpolate=True, size=config["fig_size"], pos=(x - config["pair_offset"], y))
             sign = visual.TextStim(win=win, text=pair["sign"], color='black', height=config["sign_size"], pos=(x, y))
