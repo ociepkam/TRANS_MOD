@@ -71,16 +71,16 @@ def run_trial(win, k, n, ans_type, config, feedback, feedb):
         win.flip()
     if len(clicked):
         corr[0] = trial.answers[clicked[0]]["corr"]
-    if len(clicked) == 2:
+    if len(set(clicked)) == 2:
         corr[1] = trial.answers[clicked[1]]["corr"]
-        acc = 1 if corr[0] and corr[1] else 0
+    acc = 1 if corr[0] and corr[1] else 0
 
     if feedback:
         for ans in trial.answers:
             if ans["corr"]:
                 ans["frame"].lineColor = config["frame_answer_color"]
                 ans["frame"].opacity = 1
-        if acc:
+        if acc and len(set(clicked)) == 2:
             feedb["pos"].setAutoDraw(True)
         elif len(clicked) == 2:
             feedb["neg"].setAutoDraw(True)
