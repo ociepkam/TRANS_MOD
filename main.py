@@ -9,7 +9,7 @@ from sources.check_exit import check_exit
 from sources.experiment_info import experiment_info
 from sources.load_data import load_config, replace_polish
 from sources.screen import get_screen_res, get_frame_rate
-from sources.show_info import show_info
+from sources.show_info import show_info, show_image
 from sources.trail import Trial
 
 part_id, part_sex, part_age, date = experiment_info()
@@ -46,10 +46,13 @@ def run_trial(win, k, n, ans_type, config, feedback, feedb):
     trial = Trial(k,  n, ans_type)
     trial.prepare_to_draw(win, config)
 
+    idx_info = visual.TextStim(win, color='black', pos=(500, 400), height=50,
+                               text=i)
     acc = None
     corr = [None, None]
     rt = []
     trial.draw(True)
+    idx_info.setAutoDraw(True)
     win.callOnFlip(response_clock.reset)
     event.clearEvents()
     win.flip()
@@ -89,15 +92,24 @@ def run_trial(win, k, n, ans_type, config, feedback, feedb):
         win.flip()
         if config["feedback_time"] > 0:
             time.sleep(config["feedback_time"])
-        else:
-            key = event.waitKeys(["space", config["exit_key"]])
-            if key == config["exit_key"]:
-                logging.critical('Experiment finished by user! {} pressed.'.format(key))
-                exit(1)
+        elif config["feedback_time"] == -1:
+            press_space_msg.setAutoDraw(True)
+            win.flip()
+            key = event.waitKeys(keyList=['f7', 'space'])
+            if key == ['f7']:
+                logging.critical('Experiment finished by user! {} pressed.'.format(key[0]))
+                exit(0)
+        # else:
+        #     key = event.waitKeys(["space", config["exit_key"]])
+        #     if key == config["exit_key"]:
+        #         logging.critical('Experiment finished by user! {} pressed.'.format(key))
+        #         exit(1)
     for _, v in feedb.items():
         v.setAutoDraw(False)
     trial.draw(False)
+    idx_info.setAutoDraw(False)
     clock_image.setAutoDraw(False)
+    press_space_msg.setAutoDraw(False)
     win.flip()
     time.sleep(config["wait_time"])
     rt += [None, None]
@@ -117,16 +129,25 @@ pos_feedb = visual.TextStim(win, text=replace_polish(config["pos_feedb"]), color
 neg_feedb = visual.TextStim(win, text=replace_polish(config["neg_feedb"]), color='black', height=40, pos=(0, -200))
 no_feedb = visual.TextStim(win, text=replace_polish(config["no_feedb"]), color='black', height=40, pos=(0, -200))
 feedb = {"pos": pos_feedb, "neg": neg_feedb, "no": no_feedb}
+press_space_msg = visual.TextStim(win, text=u'Przyci\u015Bnij spacje', color='black', height=25, pos=(0, -300))
+break_time = visual.TextStim(win, text=replace_polish("Masz pół minuty przerwy. Nie odchodź od komputera"),
+                          color='black', height=config['TEXT_SIZE'], pos=(0, 0))
 
 # TRAINING
 mean_acc = 0
 data_train = prepare_trials(config["training"], config["train_trials_randomize"])
+training_nr = 0
 
 while mean_acc < config["min_training_acc"]:
-    show_info(win, join('.', 'messages', "instruction1.txt"), text_size=config['TEXT_SIZE'],
-              screen_width=SCREEN_RES[0], key=config["exit_key"])
-    # show_image(window, 'instruction.png', SCREEN_RES, , key=config["exit_key"])
+    # show_info(win, join('.', 'messages', "instruction1.txt"), text_size=config['TEXT_SIZE'],
+    #           screen_width=SCREEN_RES[0], key=config["exit_key"])
+    show_image(win, 'instruction1.png', SCREEN_RES)
+    show_image(win, 'instruction2.png', SCREEN_RES)
+    show_image(win, 'instruction3.png', SCREEN_RES)
+    show_image(win, 'instruction4.png', SCREEN_RES)
+
     mean_acc = 0
+    training_nr += 1
     i = 1
     for k, n, ans_type in data_train:
         corr1, corr2, acc, rt1, rt2 = run_trial(win, k, n, ans_type, config, config["feedback_in_training"], feedb)
@@ -138,6 +159,13 @@ while mean_acc < config["min_training_acc"]:
         mean_acc /= (i - 1)
     else:
         break
+    if mean_acc < config["min_training_acc"] and training_nr == 5:
+        show_info(win, join('.', 'messages', "end.txt"), text_size=config['TEXT_SIZE'], screen_width=SCREEN_RES[0])
+        logging.critical('Training not completed')
+        exit(1)
+    if mean_acc < config["min_training_acc"]:
+        show_info(win, join('.', 'messages', "training_info.txt"),
+                  text_size=config['TEXT_SIZE'],screen_width=SCREEN_RES[0])
 
 # EXPERIMENT
 show_info(win, join('.', 'messages', "instruction2.txt"), text_size=config['TEXT_SIZE'],
@@ -145,10 +173,21 @@ show_info(win, join('.', 'messages', "instruction2.txt"), text_size=config['TEXT
 
 i = 1
 data_exp = prepare_trials(config["experiment"], config["train_trials_randomize"])
+if config["exp_trials_randomize"]:
+    random.shuffle(data_exp)
+
 for k, n, ans_type in data_exp:
     corr1, corr2, acc, rt1, rt2 = run_trial(win, k, n, ans_type, config, False, feedb)
     RESULTS.append([i, "exp", k, n, ans_type, corr1, corr2, acc, rt1, rt2])
     i += 1
+    if i == 27:
+        timer = core.CountdownTimer(30)
+        while timer.getTime() > 0:
+            break_time.setAutoDraw(True)
+            win.flip()
+        break_time.setAutoDraw(False)
+        show_info(win, join('.', 'messages', "break2.txt"), text_size=config['TEXT_SIZE']+30,
+              screen_width=SCREEN_RES[0], key=config["exit_key"])
 
 show_info(win, join('.', 'messages', "end.txt"), text_size=config['TEXT_SIZE'],
           screen_width=SCREEN_RES[0], key=config["exit_key"])
