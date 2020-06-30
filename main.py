@@ -73,7 +73,7 @@ def run_trial(win, k, n, ans_type, config, feedback, feedb):
         corr[0] = trial.answers[clicked[0]]["corr"]
     if len(set(clicked)) == 2:
         corr[1] = trial.answers[clicked[1]]["corr"]
-    acc = 1 if corr[0] and corr[1] else 0
+        acc = 1 if corr[0] and corr[1] else 0
 
     if feedback:
         for ans in trial.answers:
